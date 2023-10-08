@@ -1,0 +1,73 @@
+---
+title: "DataSHIELD Python/R Notebook"
+output: html_notebook
+---
+
+1. Establish connections with DataSHIELD nodes
+
+```{r}
+library(DSOpal)
+library(dsBaseClient)
+builder <- DSI::newDSLoginBuilder()
+builder$append(server = "study1",  url = "https://opal-demo.obiba.org",
+               user = "dsuser", password = "P@ssw0rd",
+               profile = "default")
+builder$append(server = "study2",  url = "https://opal-demo.obiba.org",
+               user = "dsuser", password = "P@ssw0rd",
+               profile = "default")
+logindata <- builder$build()
+options(datashield.progress = FALSE)
+conns <- DSI::datashield.login(logins = logindata)
+```
+
+2. Utility functions
+
+List profiles:
+
+```{r}
+datashield.profiles(conns)
+```
+
+List packages:
+
+```{r}
+datashield.pkg_status(conns)
+```
+
+List allowed methods:
+
+```{r}
+datashield.method_status(conns, type = "aggregate")
+```
+
+3. Make analysis
+
+```{r}
+datashield.assign.table(conns, "df", list(
+  study1 = "CNSIM.CNSIM1",
+  study2 = "CNSIM.CNSIM2"))
+```
+
+```{r}
+ds.colnames('df')
+```
+
+```{r}
+ds.mean('df$LAB_GLUC_ADJUSTED')
+```
+
+```{r}
+ds.heatmapPlot('df$LAB_TSC', 'df$LAB_HDL', type = 'split')
+```
+
+
+```{r}
+ds.histogram('df$LAB_GLUC_ADJUSTED', type = 'split')
+```
+
+4. Clean up
+
+
+```{r}
+datashield.logout(conns)
+```
